@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>聊天站</title>
+  <style>
+    :root{
+      --bg1:#0f172a;
+      --bg2:#111827;
+      --card:rgba(17,24,39,.72);
+      --stroke:rgba(255,255,255,.10);
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --accent1:#60a5fa;
+      --accent2:#8b5cf6;
+      --bubble1:#24324a;
+      --bubble2:#30435f;
+      --green:#22c55e;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:
+        radial-gradient(circle at top left, #1d4ed8 0%, transparent 35%),
+        radial-gradient(circle at top right, #7c3aed 0%, transparent 30%),
+        linear-gradient(180deg, #050816, var(--bg1) 40%, #020617);
+    }
+    .card{
+      width:min(1100px, 94vw);
+      height:min(760px, 92vh);
+      background:var(--card);
+      border:1px solid var(--stroke);
+      border-radius:28px;
+      box-shadow:0 25px 80px rgba(0,0,0,.5);
+      backdrop-filter: blur(18px);
+      padding:20px;
+    }
+    .top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:16px;
+      flex-wrap:wrap;
+    }
+    .pill{
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:999px;
+      padding:10px 14px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      color:var(--text);
+    }
+    .dot{
+      width:12px;height:12px;border-radius:50%;
+      background:linear-gradient(135deg,#fb7185,#f59e0b);
+      box-shadow:0 0 18px rgba(245,158,11,.45);
+      display:inline-block;
+    }
+    .layout{
+      display:grid;
+      grid-template-columns: 1.6fr .75fr;
+      gap:16px;
+      height:calc(100% - 58px);
+    }
+    .panel{
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:22px;
+      padding:16px;
+      overflow:hidden;
+    }
+    #loginBox, #adminForm {max-width:520px}
+    #chatBox{display:none}
+    input,button,select{
+      width:100%;
+      border:none;
+      outline:none;
+      border-radius:14px;
+      padding:12px 14px;
+      font-size:16px;
+      margin-top:10px;
+    }
+    input,select{
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+    }
+    input::placeholder{color:#cbd5e1}
+    button{
+      cursor:pointer;
+      color:white;
+      font-weight:700;
+      background:linear-gradient(90deg,var(--accent1),var(--accent2));
+      transition:.15s transform ease;
+    }
+    button:hover{transform:translateY(-1px)}
+    .small{font-size:13px;color:var(--muted)}
+    #messages{
+      height:calc(100% - 78px);
+      overflow:auto;
+      padding-right:4px;
+    }
+    .msg,.system,.self{
+      margin:10px 0;
+      padding:10px 12px;
+      border-radius:14px;
+      line-height:1.45;
+      max-width:80%;
+      word-break:break-word;
+    }
+    .msg{background:linear-gradient(180deg,var(--bubble2),var(--bubble1))}
+    .self{
+      background:linear-gradient(180deg,#1d4ed8,#7c3aed);
+      margin-left:auto;
+    }
+    .system{
+      background:rgba(34,197,94,.14);
+      color:#bbf7d0;
+      max-width:100%;
+    }
+    .meta{
+      font-size:12px;
+      opacity:.8;
+      margin-bottom:4px;
+    }
+    .chatBottom{
+      display:grid;
+      grid-template-columns: 1fr 120px;
+      gap:10px;
+      margin-top:12px;
+    }
+    .users .user{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:14px;
+      padding:10px 12px;
+      margin-top:10px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .avatar{
+      width:28px;height:28px;border-radius:50%;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(135deg,#f59e0b,#ec4899);
+      flex:0 0 auto;
+      font-size:16px;
+    }
+    .hidden{display:none}
+    .sectionTitle{margin:0 0 8px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div id="loginBox" class="panel">
+      <h1>欢迎来到聊天站</h1>
+      <div class="grid2">
+        <input id="nameInput" placeholder="昵称" />
+        <select id="avatarInput">
+          <option value="🌟">🌟 星星</option>
+          <option value="🔥">🔥 火焰</option>
+          <option value="🍀">🍀 幸运草</option>
+          <option value="😎">😎 酷酷</option>
+          <option value="🎮">🎮 游戏</option>
+        </select>
+      </div>
+      <input id="keyInput" placeholder="输入密钥" />
+      <button onclick="checkKey()">进入聊天室</button>
+      <p id="loginMsg" class="small"></p>
+
+      <button onclick="toggleAdmin()">修改密钥</button>
+
+      <div id="adminForm" class="hidden">
+        <input id="adminCode" placeholder="管理员密码" />
+        <input id="oldKey" placeholder="旧密钥" />
+        <input id="newKey" placeholder="新密钥" />
+        <select id="keyType">
+          <option value="permanent">永久性密钥</option>
+          <option value="one-time">一次性密钥</option>
+        </select>
+        <button onclick="changeKey()">确认修改</button>
+        <p id="adminMsg" class="small"></p>
+      </div>
+    </div>
+
+    <div id="chatBox">
+      <div class="top">
+        <div class="pill"><span class="dot"></span><span id="myName"></span> · <span id="myAvatar"></span></div>
+        <div class="pill">状态：在线</div>
+      </div>
+
+      <div class="layout">
+        <div class="panel">
+          <div id="messages"></div>
+          <div class="chatBottom">
+            <input id="msgInput" placeholder="输入消息，按回车发送..." />
+            <button onclick="sendMsg()">发送</button>
+          </div>
+        </div>
+
+        <div class="panel users">
+          <h3 class="sectionTitle">在线用户</h3>
+          <div id="users"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+  <script>
+    // ✅ 动态获取服务器地址：自动适配当前域名
+    const SERVER_URL = window.location.origin;
+    
+    const socket = io(SERVER_URL);
+
+    function toggleAdmin() {
+      const box = document.getElementById("adminForm");
+      box.classList.toggle("hidden");
+    }
+
+    async function checkKey() {
+      const key = document.getElementById("keyInput").value.trim();
+      const name = document.getElementById("nameInput").value.trim() || "匿名";
+      const avatar = document.getElementById("avatarInput").value;
+
+      const res = await fetch(`${SERVER_URL}/api/verify-key`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key })
+      });
+
+      const data = await res.json();
+      document.getElementById("loginMsg").innerText = data.message;
+
+      if (data.ok) {
+        window.myName = name;
+        window.myAvatar = avatar;
+
+        document.getElementById("myName").innerText = name;
+        document.getElementById("myAvatar").innerText = avatar;
+
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("chatBox").style.display = "block";
+
+        socket.emit("join", { name, avatar });
+      }
+    }
+
+    async function changeKey() {
+      const adminCode = document.getElementById("adminCode").value.trim();
+      const oldKey = document.getElementById("oldKey").value.trim();
+      const newKey = document.getElementById("newKey").value.trim();
+      const type = document.getElementById("keyType").value;
+
+      const res = await fetch(`${SERVER_URL}/api/admin-change-key`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ adminCode, oldKey, newKey, type })
+      });
+
+      const data = await res.json();
+      document.getElementById("adminMsg").innerText = data.message;
+    }
+
+    function sendMsg() {
+      const input = document.getElementById("msgInput");
+      const text = input.value.trim();
+      if (!text) return;
+
+      socket.emit("chat message", {
+        name: window.myName || "匿名",
+        avatar: window.myAvatar || "🌟",
+        text,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+
+      input.value = "";
+    }
+
+    document.getElementById("msgInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sendMsg();
+    });
+
+    socket.on("chat message", (data) => {
+      const div = document.createElement("div");
+      div.className = data.name === window.myName ? "self" : "msg";
+      div.innerHTML = `
+        <div class="meta">${data.avatar || "🌟"} ${data.name} · ${data.time || ""}</div>
+        <div>${data.text}</div>
+      `;
+      document.getElementById("messages").appendChild(div);
+      document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+    });
+
+    socket.on("system", (text) => {
+      const div = document.createElement("div");
+      div.className = "system";
+      div.innerText = text;
+      document.getElementById("messages").appendChild(div);
+      document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+    });
+
+    socket.on("users", (list) => {
+      const box = document.getElementById("users");
+      box.innerHTML = "";
+      list.forEach(u => {
+        const div = document.createElement("div");
+        div.className = "user";
+        div.innerHTML = `<span class="avatar">${u.avatar || "🌟"}</span><div>${u.name}</div>`;
+        box.appendChild(div);
+      });
+    });
+  </script>
+</body>
+</html>
