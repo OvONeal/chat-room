@@ -17,7 +17,66 @@
       --bubble1:#24324a;
       --bubble2:#30435f;
       --green:#22c55e;
+      --self-grad:linear-gradient(180deg,#1d4ed8,#7c3aed);
+      --msg-grad:linear-gradient(180deg,var(--bubble2),var(--bubble1));
     }
+
+    /* ===== 6种主题 ===== */
+    [data-theme="night"] {
+      --bg1:#0f172a; --bg2:#111827; --card:rgba(17,24,39,.72);
+      --stroke:rgba(255,255,255,.10); --text:#e5e7eb; --muted:#9ca3af;
+      --bubble1:#24324a; --bubble2:#30435f;
+      --body-bg: radial-gradient(circle at top left, #1d4ed8 0%, transparent 35%),
+                 radial-gradient(circle at top right, #7c3aed 0%, transparent 30%),
+                 linear-gradient(180deg, #050816, var(--bg1) 40%, #020617);
+    }
+    [data-theme="bright"] {
+      --bg1:#f8fafc; --bg2:#f1f5f9; --card:rgba(255,255,255,.9);
+      --stroke:rgba(0,0,0,.08); --text:#1e293b; --muted:#64748b;
+      --bubble1:#dbeafe; --bubble2:#bfdbfe;
+      --self-grad:linear-gradient(180deg,#3b82f6,#8b5cf6);
+      --msg-grad:linear-gradient(180deg,#e0e7ff,#dbeafe);
+      --body-bg: linear-gradient(135deg, #fef3c7 0%, #fce7f3 50%, #e0e7ff 100%);
+    }
+    [data-theme="warm"] {
+      --bg1:#fff7ed; --bg2:#ffedd5; --card:rgba(255,247,237,.9);
+      --stroke:rgba(0,0,0,.08); --text:#431407; --muted:#9a3412;
+      --bubble1:#fed7aa; --bubble2:#fdba74;
+      --self-grad:linear-gradient(180deg,#ea580c,#f59e0b);
+      --msg-grad:linear-gradient(180deg,#ffedd5,#fed7aa);
+      --body-bg: linear-gradient(135deg, #fef3c7, #fed7aa, #fecaca);
+    }
+    [data-theme="forest"] {
+      --bg1:#064e3b; --bg2:#065f46; --card:rgba(6,78,59,.75);
+      --stroke:rgba(255,255,255,.10); --text:#d1fae5; --muted:#6ee7b7;
+      --bubble1:#065f46; --bubble2:#047857;
+      --self-grad:linear-gradient(180deg,#059669,#10b981);
+      --msg-grad:linear-gradient(180deg,#047857,#065f46);
+      --body-bg: radial-gradient(circle at top left, #10b981 0%, transparent 35%),
+                 radial-gradient(circle at top right, #34d399 0%, transparent 30%),
+                 linear-gradient(180deg, #022c22, var(--bg1) 40%, #011c16);
+    }
+    [data-theme="ocean"] {
+      --bg1:#0c4a6e; --bg2:#075985; --card:rgba(12,74,110,.75);
+      --stroke:rgba(255,255,255,.10); --text:#e0f2fe; --muted:#7dd3fc;
+      --bubble1:#075985; --bubble2:#0369a1;
+      --self-grad:linear-gradient(180deg,#0284c7,#0ea5e9);
+      --msg-grad:linear-gradient(180deg,#0369a1,#075985);
+      --body-bg: radial-gradient(circle at top left, #0ea5e9 0%, transparent 35%),
+                 radial-gradient(circle at top right, #38bdf8 0%, transparent 30%),
+                 linear-gradient(180deg, #082f49, var(--bg1) 40%, #0c4a6e);
+    }
+    [data-theme="purple"] {
+      --bg1:#4c1d95; --bg2:#5b21b6; --card:rgba(76,29,149,.75);
+      --stroke:rgba(255,255,255,.10); --text:#ede9fe; --muted:#c4b5fd;
+      --bubble1:#5b21b6; --bubble2:#6d28d9;
+      --self-grad:linear-gradient(180deg,#7c3aed,#a855f7);
+      --msg-grad:linear-gradient(180deg,#6d28d9,#5b21b6);
+      --body-bg: radial-gradient(circle at top left, #a855f7 0%, transparent 35%),
+                 radial-gradient(circle at top right, #c084fc 0%, transparent 30%),
+                 linear-gradient(180deg, #2e1065, var(--bg1) 40%, #4c1d95);
+    }
+
     *{box-sizing:border-box}
     body{
       margin:0;
@@ -27,10 +86,10 @@
       display:flex;
       justify-content:center;
       align-items:center;
-      background:
-        radial-gradient(circle at top left, #1d4ed8 0%, transparent 35%),
-        radial-gradient(circle at top right, #7c3aed 0%, transparent 30%),
-        linear-gradient(180deg, #050816, var(--bg1) 40%, #020617);
+      background: var(--body-bg, radial-gradient(circle at top left, #1d4ed8 0%, transparent 35%),
+                 radial-gradient(circle at top right, #7c3aed 0%, transparent 30%),
+                 linear-gradient(180deg, #050816, var(--bg1) 40%, #020617));
+      transition: background 0.5s ease;
     }
     .card{
       width:min(1100px, 94vw);
@@ -41,6 +100,7 @@
       box-shadow:0 25px 80px rgba(0,0,0,.5);
       backdrop-filter: blur(18px);
       padding:20px;
+      transition: all 0.5s ease;
     }
     .top{
       display:flex;
@@ -59,6 +119,7 @@
       align-items:center;
       gap:8px;
       color:var(--text);
+      font-size:14px;
     }
     .dot{
       width:12px;height:12px;border-radius:50%;
@@ -105,27 +166,38 @@
     button:hover{transform:translateY(-1px)}
     .small{font-size:13px;color:var(--muted)}
     #messages{
-      height:calc(100% - 78px);
+      height:calc(100% - 110px);
       overflow:auto;
       padding-right:4px;
     }
+
+    /* ===== 修复：消息气泡不超出边界 ===== */
     .msg,.system,.self{
       margin:10px 0;
       padding:10px 12px;
       border-radius:14px;
       line-height:1.45;
-      max-width:80%;
+      max-width:70%;
+      min-width:0;
       word-break:break-word;
+      overflow-wrap:break-word;
+      box-sizing:border-box;
     }
-    .msg{background:linear-gradient(180deg,var(--bubble2),var(--bubble1))}
+    .msg{
+      background:var(--msg-grad);
+      align-self:flex-start;
+    }
     .self{
-      background:linear-gradient(180deg,#1d4ed8,#7c3aed);
+      background:var(--self-grad);
       margin-left:auto;
+      align-self:flex-end;
     }
     .system{
       background:rgba(34,197,94,.14);
       color:#bbf7d0;
       max-width:100%;
+      text-align:center;
+      font-size:13px;
     }
     .meta{
       font-size:12px;
@@ -134,9 +206,16 @@
     }
     .chatBottom{
       display:grid;
-      grid-template-columns: 1fr 120px;
+      grid-template-columns: 1fr auto auto;
       gap:10px;
       margin-top:12px;
+      align-items:center;
+    }
+    .file-btn{
+      width:auto;
+      padding:12px 16px;
+      background:linear-gradient(90deg,#f59e0b,#ec4899);
+      white-space:nowrap;
     }
     .users .user{
       background:rgba(255,255,255,.06);
@@ -147,6 +226,8 @@
       display:flex;
       align-items:center;
       gap:10px;
+      max-width:100%;
+      overflow:hidden;
     }
     .avatar{
       width:28px;height:28px;border-radius:50%;
@@ -157,15 +238,100 @@
       flex:0 0 auto;
       font-size:16px;
     }
-    .hidden{display:none}
+    .hidden{display:none !important}
     .sectionTitle{margin:0 0 8px}
     .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+    /* 聊天室选择 */
+    .room-grid{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:8px;
+      margin:10px 0;
+    }
+    .room-btn{
+      padding:10px;
+      border-radius:12px;
+      background:rgba(255,255,255,.08);
+      border:2px solid transparent;
+      cursor:pointer;
+      text-align:center;
+      font-size:14px;
+      color:var(--text);
+      transition:all .2s;
+    }
+    .room-btn:hover{border-color:var(--accent1)}
+    .room-btn.active{
+      border-color:var(--accent2);
+      background:linear-gradient(90deg,var(--accent1),var(--accent2));
+      color:white;
+    }
+
+    /* 主题选择 */
+    .theme-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+      margin:10px 0;
+    }
+    .theme-btn{
+      padding:8px;
+      border-radius:10px;
+      border:2px solid transparent;
+      cursor:pointer;
+      text-align:center;
+      font-size:13px;
+      transition:all .2s;
+    }
+    .theme-btn:hover{transform:scale(1.05)}
+    .theme-btn.active{border-color:white;box-shadow:0 0 10px rgba(255,255,255,.3)}
+
+    /* 文件消息 */
+    .file-msg{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:8px;
+      background:rgba(255,255,255,.1);
+      border-radius:10px;
+      margin-top:6px;
+    }
+    .file-msg a{
+      color:var(--accent1);
+      text-decoration:none;
+    }
+    .file-msg a:hover{text-decoration:underline}
+
+    /* 图片消息 */
+    .img-msg{
+      max-width:100%;
+      max-height:200px;
+      border-radius:10px;
+      margin-top:6px;
+      cursor:pointer;
+    }
+
+    /* 滚动条美化 */
+    #messages::-webkit-scrollbar{width:6px}
+    #messages::-webkit-scrollbar-track{background:transparent}
+    #messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:3px}
+
+    /* 响应式 */
+    @media(max-width:768px){
+      .layout{grid-template-columns:1fr}
+      .users-panel{display:none}
+      .room-grid{grid-template-columns:repeat(3,1fr)}
+      .msg,.self{max-width:85%}
+    }
   </style>
 </head>
-<body>
+<body data-theme="night">
   <div class="card">
+    <!-- 登录界面 -->
     <div id="loginBox" class="panel">
       <h1>欢迎来到聊天站</h1>
+
       <div class="grid2">
         <input id="nameInput" placeholder="昵称" />
         <select id="avatarInput">
@@ -174,13 +340,31 @@
           <option value="🍀">🍀 幸运草</option>
           <option value="😎">😎 酷酷</option>
           <option value="🎮">🎮 游戏</option>
+          <option value="🐱">🐱 猫咪</option>
+          <option value="🐶">🐶 狗狗</option>
+          <option value="🦄">🦄 独角兽</option>
+          <option value="🚀">🚀 火箭</option>
+          <option value="🌈">🌈 彩虹</option>
+          <option value="⚡">⚡ 闪电</option>
+          <option value="🍕">🍕 披萨</option>
+          <option value="🎵">🎵 音乐</option>
+          <option value="🎨">🎨 画家</option>
+          <option value="📚">📚 书虫</option>
         </select>
       </div>
+
       <input id="keyInput" placeholder="输入密钥" />
+
+      <p style="margin:8px 0 4px;font-size:14px;color:var(--muted)">选择聊天室：</p>
+      <div class="room-grid" id="roomGrid"></div>
+
+      <p style="margin:8px 0 4px;font-size:14px;color:var(--muted)">选择主题：</p>
+      <div class="theme-grid" id="themeGrid"></div>
+
       <button onclick="checkKey()">进入聊天室</button>
       <p id="loginMsg" class="small"></p>
 
-      <button onclick="toggleAdmin()">修改密钥</button>
+      <button onclick="toggleAdmin()" style="margin-top:20px;background:linear-gradient(90deg,#64748b,#94a3b8)">修改密钥</button>
 
       <div id="adminForm" class="hidden">
         <input id="adminCode" placeholder="管理员密码" />
@@ -195,10 +379,18 @@
       </div>
     </div>
 
+    <!-- 聊天界面 -->
     <div id="chatBox">
       <div class="top">
-        <div class="pill"><span class="dot"></span><span id="myName"></span> · <span id="myAvatar"></span></div>
-        <div class="pill">状态：在线</div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <div class="pill"><span class="dot"></span><span id="myName"></span> · <span id="myAvatar"></span></div>
+          <div class="pill" id="roomPill">🏠 大厅</div>
+          <div class="pill" id="themePill" style="cursor:pointer" onclick="showThemePicker()">🎨 主题</div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <div class="pill">状态：在线</div>
+          <button onclick="leaveRoom()" style="width:auto;padding:8px 16px;font-size:13px;background:linear-gradient(90deg,#ef4444,#f97316)">退出</button>
+        </div>
       </div>
 
       <div class="layout">
@@ -206,122 +398,300 @@
           <div id="messages"></div>
           <div class="chatBottom">
             <input id="msgInput" placeholder="输入消息，按回车发送..." />
+            <button class="file-btn" onclick="document.getElementById('fileInput').click()">📎 文件</button>
+            <input type="file" id="fileInput" class="hidden" onchange="sendFile(this)" />
             <button onclick="sendMsg()">发送</button>
           </div>
         </div>
 
-        <div class="panel users">
+        <div class="panel users users-panel">
           <h3 class="sectionTitle">在线用户</h3>
           <div id="users"></div>
         </div>
+      </div>
+    </div>
+
+    <!-- 主题选择弹窗 -->
+    <div id="themeModal" onclick="if(event.target===this)hideThemePicker()" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);display:none;justify-content:center;align-items:center;z-index:100">
+      <div style="background:var(--card);padding:24px;border-radius:20px;max-width:400px;width:90%;border:1px solid var(--stroke)">
+        <h3 style="margin-top:0">切换主题</h3>
+        <div class="theme-grid" id="themeModalGrid"></div>
+        <button onclick="hideThemePicker()" style="margin-top:16px">关闭</button>
       </div>
     </div>
   </div>
 
   <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
   <script>
-    // ✅ 动态获取服务器地址：自动适配当前域名
     const SERVER_URL = window.location.origin;
-    
     const socket = io(SERVER_URL);
 
-    function toggleAdmin() {
-      const box = document.getElementById("adminForm");
-      box.classList.toggle("hidden");
+    // ===== 配置 =====
+    const ROOMS = [
+      {id:"lobby",name:"🏠 大厅",emoji:"🏠"},
+      {id:"game",name:"🎮 游戏房",emoji:"🎮"},
+      {id:"study",name:"📚 学习室",emoji:"📚"},
+      {id:"music",name:"🎵 音乐吧",emoji:"🎵"},
+      {id:"food",name:"🍕 美食街",emoji:"🍕"},
+      {id:"anime",name:"🎨 二次元",emoji:"🎨"},
+      {id:"tech",name:"💻 技术区",emoji:"💻"},
+      {id:"pets",name:"🐱 萌宠园",emoji:"🐱"},
+      {id:"sports",name:"⚽ 运动场",emoji:"⚽"},
+      {id:"random",name:"🎲 随机聊",emoji:"🎲"},
+    ];
+
+    const THEMES = [
+      {id:"night",name:"🌙 夜间",color:"#0f172a"},
+      {id:"bright",name:"☀️ 明亮",color:"#f8fafc"},
+      {id:"warm",name:"🔥 温和",color:"#fff7ed"},
+      {id:"forest",name:"🌲 森林",color:"#064e3b"},
+      {id:"ocean",name:"🌊 海洋",color:"#0c4a6e"},
+      {id:"purple",name:"💜 紫色",color:"#4c1d95"},
+    ];
+
+    let currentRoom = "lobby";
+    let currentTheme = "night";
+
+    // 初始化聊天室按钮
+    function initRooms(){
+      const grid = document.getElementById("roomGrid");
+      grid.innerHTML = "";
+      ROOMS.forEach(r=>{
+        const btn = document.createElement("div");
+        btn.className = "room-btn" + (r.id===currentRoom?" active":"");
+        btn.innerText = r.name;
+        btn.onclick = ()=>{currentRoom=r.id;updateRoomButtons();};
+        grid.appendChild(btn);
+      });
+    }
+    function updateRoomButtons(){
+      document.querySelectorAll(".room-btn").forEach((btn,i)=>{
+        btn.classList.toggle("active",ROOMS[i].id===currentRoom);
+      });
     }
 
-    async function checkKey() {
+    // 初始化主题按钮
+    function initThemes(){
+      const grid = document.getElementById("themeGrid");
+      const modalGrid = document.getElementById("themeModalGrid");
+      [grid,modalGrid].forEach((g,idx)=>{
+        if(!g) return;
+        g.innerHTML = "";
+        THEMES.forEach(t=>{
+          const btn = document.createElement("div");
+          btn.className = "theme-btn" + (t.id===currentTheme?" active":"");
+          btn.style.background = t.color;
+          btn.style.color = t.id==="bright"||t.id==="warm"?"#333":"#fff";
+          btn.innerText = t.name;
+          btn.onclick = ()=>{setTheme(t.id);hideThemePicker();};
+          g.appendChild(btn);
+        });
+      });
+    }
+    function setTheme(id){
+      currentTheme = id;
+      document.body.setAttribute("data-theme",id);
+      initThemes();
+    }
+    function showThemePicker(){
+      const modal = document.getElementById("themeModal");
+      modal.style.display = "flex";
+    }
+    function hideThemePicker(){
+      const modal = document.getElementById("themeModal");
+      modal.style.display = "none";
+    }
+
+    initRooms();
+    initThemes();
+
+    // ===== 登录 =====
+    function toggleAdmin(){
+      document.getElementById("adminForm").classList.toggle("hidden");
+    }
+
+    async function checkKey(){
       const key = document.getElementById("keyInput").value.trim();
       const name = document.getElementById("nameInput").value.trim() || "匿名";
       const avatar = document.getElementById("avatarInput").value;
+      const room = currentRoom;
 
-      const res = await fetch(`${SERVER_URL}/api/verify-key`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key })
+      const res = await fetch(`${SERVER_URL}/api/verify-key`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({key})
       });
 
       const data = await res.json();
       document.getElementById("loginMsg").innerText = data.message;
 
-      if (data.ok) {
+      if(data.ok){
         window.myName = name;
         window.myAvatar = avatar;
+        window.myRoom = room;
 
         document.getElementById("myName").innerText = name;
         document.getElementById("myAvatar").innerText = avatar;
+        document.getElementById("roomPill").innerText = ROOMS.find(r=>r.id===room)?.name || room;
 
         document.getElementById("loginBox").style.display = "none";
         document.getElementById("chatBox").style.display = "block";
 
-        socket.emit("join", { name, avatar });
+        socket.emit("join",{name,avatar,room});
       }
     }
 
-    async function changeKey() {
+    async function changeKey(){
       const adminCode = document.getElementById("adminCode").value.trim();
       const oldKey = document.getElementById("oldKey").value.trim();
       const newKey = document.getElementById("newKey").value.trim();
       const type = document.getElementById("keyType").value;
 
-      const res = await fetch(`${SERVER_URL}/api/admin-change-key`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ adminCode, oldKey, newKey, type })
+      const res = await fetch(`${SERVER_URL}/api/admin-change-key`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({adminCode,oldKey,newKey,type})
       });
 
       const data = await res.json();
       document.getElementById("adminMsg").innerText = data.message;
     }
 
-    function sendMsg() {
+    function leaveRoom(){
+      socket.emit("leave",{name:window.myName,room:window.myRoom});
+      document.getElementById("chatBox").style.display = "none";
+      document.getElementById("loginBox").style.display = "block";
+      document.getElementById("messages").innerHTML = "";
+      document.getElementById("users").innerHTML = "";
+    }
+
+    // ===== 发送消息 =====
+    function sendMsg(){
       const input = document.getElementById("msgInput");
       const text = input.value.trim();
-      if (!text) return;
+      if(!text) return;
 
-      socket.emit("chat message", {
-        name: window.myName || "匿名",
-        avatar: window.myAvatar || "🌟",
+      socket.emit("chat message",{
+        name:window.myName || "匿名",
+        avatar:window.myAvatar || "🌟",
         text,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        room:window.myRoom,
+        time:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})
       });
 
       input.value = "";
     }
 
-    document.getElementById("msgInput").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") sendMsg();
+    // ===== 发送文件 =====
+    async function sendFile(input){
+      const file = input.files[0];
+      if(!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (e)=>{
+        const base64 = e.target.result;
+        const ext = file.name.split(".").pop().toLowerCase();
+
+        socket.emit("file message",{
+          name:window.myName || "匿名",
+          avatar:window.myAvatar || "🌟",
+          fileName:file.name,
+          fileData:base64,
+          fileType:file.type,
+          fileExt:ext,
+          room:window.myRoom,
+          time:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})
+        });
+      };
+      reader.readAsDataURL(file);
+      input.value = "";
+    }
+
+    document.getElementById("msgInput").addEventListener("keydown",(e)=>{
+      if(e.key === "Enter") sendMsg();
     });
 
-    socket.on("chat message", (data) => {
+    // ===== 接收消息 =====
+    socket.on("chat message",(data)=>{
+      if(data.room !== window.myRoom) return;
       const div = document.createElement("div");
       div.className = data.name === window.myName ? "self" : "msg";
       div.innerHTML = `
         <div class="meta">${data.avatar || "🌟"} ${data.name} · ${data.time || ""}</div>
-        <div>${data.text}</div>
+        <div>${escapeHtml(data.text)}</div>
       `;
-      document.getElementById("messages").appendChild(div);
-      document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+      appendMsg(div);
     });
 
-    socket.on("system", (text) => {
+    // ===== 接收文件 =====
+    socket.on("file message",(data)=>{
+      if(data.room !== window.myRoom) return;
       const div = document.createElement("div");
-      div.className = "system";
-      div.innerText = text;
-      document.getElementById("messages").appendChild(div);
-      document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+      div.className = data.name === window.myName ? "self" : "msg";
+
+      let content = "";
+      const ext = data.fileExt || "";
+
+      // 图片
+      if(["jpg","jpeg","png","gif","webp","bmp","svg"].includes(ext)){
+        content = `<img src="${data.fileData}" class="img-msg" onclick="window.open(this.src)" alt="${escapeHtml(data.fileName)}"/>`;
+      }
+      // 文本文件预览
+      else if(["txt","js","html","css","json","md","py","java","cpp","c","h","xml","yaml","yml"].includes(ext)){
+        content = `<div class="file-msg">📄 <a href="${data.fileData}" download="${escapeHtml(data.fileName)}">${escapeHtml(data.fileName)}</a> <span style="font-size:12px;color:var(--muted)">(点击下载)</span></div>`;
+      }
+      // Word
+      else if(["doc","docx"].includes(ext)){
+        content = `<div class="file-msg">📘 <a href="${data.fileData}" download="${escapeHtml(data.fileName)}">${escapeHtml(data.fileName)}</a> <span style="font-size:12px;color:var(--muted)">(Word文档)</span></div>`;
+      }
+      // 其他文件
+      else{
+        content = `<div class="file-msg">📎 <a href="${data.fileData}" download="${escapeHtml(data.fileName)}">${escapeHtml(data.fileName)}</a> <span style="font-size:12px;color:var(--muted)">(点击下载)</span></div>`;
+      }
+
+      div.innerHTML = `
+        <div class="meta">${data.avatar || "🌟"} ${data.name} · ${data.time || ""}</div>
+        ${content}
+      `;
+      appendMsg(div);
     });
 
-    socket.on("users", (list) => {
+    socket.on("system",(data)=>{
+      if(typeof data === "string"){
+        // 兼容旧格式
+        const div = document.createElement("div");
+        div.className = "system";
+        div.innerText = data;
+        appendMsg(div);
+      } else if(data.room === window.myRoom){
+        const div = document.createElement("div");
+        div.className = "system";
+        div.innerText = data.text;
+        appendMsg(div);
+      }
+    });
+
+    socket.on("users",(list)=>{
       const box = document.getElementById("users");
       box.innerHTML = "";
-      list.forEach(u => {
+      list.filter(u=>u.room===window.myRoom).forEach(u=>{
         const div = document.createElement("div");
         div.className = "user";
-        div.innerHTML = `<span class="avatar">${u.avatar || "🌟"}</span><div>${u.name}</div>`;
+        div.innerHTML = `<span class="avatar">${u.avatar || "🌟"}</span><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.name}</div>`;
         box.appendChild(div);
       });
     });
+
+    function appendMsg(div){
+      document.getElementById("messages").appendChild(div);
+      document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+    }
+
+    function escapeHtml(text){
+      const div = document.createElement("div");
+      div.innerText = text;
+      return div.innerHTML;
+    }
   </script>
 </body>
 </html>
