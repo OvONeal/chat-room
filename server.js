@@ -11,16 +11,14 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const server = http.createServer(app);
 
-// ✅ 支持环境变量，默认 3000
 const PORT = process.env.PORT || 3000;
 
-// ✅ CORS 配置：允许所有来源（生产环境建议限制具体域名）
 app.use(cors({
   origin: "*",
   methods: ["GET", "POST"],
   credentials: true
 }));
-app.use(express.json());
+app.use(express.json({limit: "10mb"}));
 
 const io = new Server(server, {
   cors: { 
@@ -29,7 +27,7 @@ const io = new Server(server, {
   }
 });
 
-// ✅ 密钥存储（生产环境建议用数据库）
+// 密钥存储
 let keys = [
   { key: "ABC123", type: "permanent", used: false },
   { key: "ONCE1", type: "one-time", used: false }
@@ -37,7 +35,7 @@ let keys = [
 
 const users = new Map();
 
-// ✅ 健康检查接口（部署平台需要）
+// 健康检查
 app.get("/health", (req, res) => {
   res.json({ status: "ok", uptime: process.uptime() });
 });
@@ -75,28 +73,53 @@ app.post("/api/admin-change-key", (req, res) => {
 io.on("connection", (socket) => {
   socket.on("join", (user) => {
     users.set(socket.id, user);
+    socket.join(user.room);
+    
+    // 通知当前房间
+    io.to(user.room).emit("system", { 
+      text: `${user.avatar || "🌟"} ${user.name} 上线了`,
+      room: user.room 
+    });
+    
+    // 更新所有房间的在线用户列表
     io.emit("users", Array.from(users.values()));
-    io.emit("system", `${user.avatar || "🌟"} ${user.name} 上线了`);
   });
 
   socket.on("chat message", (data) => {
-    io.emit("chat message", data);
+    io.to(data.room).emit("chat message", data);
+  });
+  
+  socket.on("file message", (data) => {
+    io.to(data.room).emit("file message", data);
+  });
+
+  socket.on("leave", (data) => {
+    const user = users.get(socket.id);
+    if (user) {
+      io.to(user.room).emit("system", { 
+        text: `${user.avatar || "🌟"} ${user.name} 离开了`,
+        room: user.room 
+      });
+      users.delete(socket.id);
+      io.emit("users", Array.from(users.values()));
+    }
   });
 
   socket.on("disconnect", () => {
     const user = users.get(socket.id);
     if (user) {
-      io.emit("system", `${user.avatar || "🌟"} ${user.name} 离开了`);
+      io.to(user.room).emit("system", { 
+        text: `${user.avatar || "🌟"} ${user.name} 离开了`,
+        room: user.room 
+      });
       users.delete(socket.id);
       io.emit("users", Array.from(users.values()));
     }
   });
 });
 
-// ✅ 静态文件服务：把 index.html 放在同一目录下
 app.use(express.static(__dirname));
 
-// ✅ 所有路由都返回 index.html（支持前端路由）
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
